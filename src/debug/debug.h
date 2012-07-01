@@ -1,6 +1,6 @@
 /*
  * debug routines for nfc-eventd
- * Copyright (C) 2010 Romuald Conty <rconty@il4p.fr>,
+ * Copyright (C) 2010 Romuald Conty <romuald@libnfc.org>,
  * 
  *  based on PKCS #11 PAM Login Module
  *  Copyright (C) 2003 Mario Strasser <mast@gmx.net>,

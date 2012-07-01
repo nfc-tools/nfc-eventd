@@ -1,6 +1,6 @@
 /*
  * NFC Event daemon
- * Copyright (C) 2009 Romuald Conty <rconty@il4p.fr>,
+ * Copyright (C) 2009 Romuald Conty <romuald@libnfc.org>,
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
