@@ -339,6 +339,7 @@ ned_poll_for_tag(nfc_device* nfc_device, nfc_target* tag)
 
 int
 main ( int argc, char *argv[] ) {
+    nfc_context* context;
     nfc_target* old_tag = NULL;
     nfc_target* new_tag;
 
@@ -372,9 +373,9 @@ main ( int argc, char *argv[] ) {
     nfc_device* nfc_device = NULL;
 
 //connect:
-    nfc_init(NULL);
+    nfc_init(&context);
     // Try to open the NFC device
-    if ( nfc_device == NULL ) nfc_device = nfc_open( NULL, NULL );
+    if ( nfc_device == NULL ) nfc_device = nfc_open( context, NULL );
 //init:
     if ( nfc_device == NULL ) {
         ERR( "%s", "NFC device not found" );
@@ -432,7 +433,7 @@ detect:
 
     /* If we get here means that an error or exit status occurred */
     DBG ( "%s", "Exited from main loop" );
-    nfc_exit(NULL);
+    nfc_exit(context);
     exit ( EXIT_FAILURE );
 } /* main */
 
