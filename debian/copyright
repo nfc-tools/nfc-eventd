@@ -1,9 +1,9 @@
-This package was debianized by Romuald Conty <rconty@il4p.fr> on
+This package was debianized by Romuald Conty <romuald@libnfc.org> on
 Wed, 23 Sep 2009 21:42:42 +0100.
 
 It was downloaded from: http://code.google.com/p/nfc-tools/
 
-Copyright (C) 2009 by IL4P <rconty@il4p.fr>
+Copyright (C) 2009 by IL4P <romuald@libnfc.org>
 
 License: GNU General Public License version 3
 
@@ -23,5 +23,5 @@ License: GNU General Public License version 3
 On Debian GNU/Linux systems, the complete text of the GNU General Public
 License, version 3, can be found in `/usr/share/common-licenses/LGPL-3'.
 
-The Debian packaging is (C) 2009, Romuald Conty <rconty@il4p.fr> and
+The Debian packaging is (C) 2009, Romuald Conty <romuald@libnfc.org> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.

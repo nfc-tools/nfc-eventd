@@ -2,29 +2,29 @@ nfc-eventd (0.1.5-0) unstable; urgency=low
 
   * New upstream release
 
- -- Romuald Conty <rconty@il4p.fr>  Thu, 10 Nov 2011 11:42:42 +0100
+ -- Romuald Conty <romuald@libnfc.org>  Thu, 10 Nov 2011 11:42:42 +0100
 
 nfc-eventd (0.1.1-0) unstable; urgency=low
 
   * New upstream release
 
- -- Romuald Conty <rconty@il4p.fr>  Mon, 22 Feb 2010 10:42:42 +0100
+ -- Romuald Conty <romuald@libnfc.org>  Mon, 22 Feb 2010 10:42:42 +0100
 
 nfc-eventd (0.0.0-2) unstable; urgency=low
 
   * Add NEM (Nfc Eventd Module) D-Bus.
 
- -- Romuald Conty <rconty@il4p.fr>  Thu, 13 Oct 2009 11:42:42 +0100
+ -- Romuald Conty <romuald@libnfc.org>  Thu, 13 Oct 2009 11:42:42 +0100
 
 nfc-eventd (0.0.0-1) unstable; urgency=low
 
   * Don't use CDBS anymore, should now cross compile.
 
- -- Romuald Conty <rconty@il4p.fr>  Wed, 01 Oct 2009 15:42:42 +0100
+ -- Romuald Conty <romuald@libnfc.org>  Wed, 01 Oct 2009 15:42:42 +0100
 
 nfc-eventd (0.0.0-0) unstable; urgency=low
 
   * Initial debian package.
 
- -- Romuald Conty <rconty@il4p.fr>  Wed, 23 Sep 2009 21:42:42 +0100
+ -- Romuald Conty <romuald@libnfc.org>  Wed, 23 Sep 2009 21:42:42 +0100
 
