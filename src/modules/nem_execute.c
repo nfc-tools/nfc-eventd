@@ -36,6 +36,13 @@
 #define ONERROR_RETURN	1
 #define ONERROR_QUIT	2
 
+#ifdef __APPLE__
+    #include <crt_externs.h>
+    #define environ (*_NSGetEnviron())
+#else
+    extern char **environ;
+#endif
+
 static nfcconf_context* _nem_execute_config_context;
 static nfcconf_block* _nem_execute_config_block;
 
@@ -60,7 +67,6 @@ static int strsubst(char *dest, const char *src, const char *search, const char 
 }
 
 static int my_system ( char *command ) {
-    extern char **environ;
     int pid, status;
     if ( !command ) return 1;
     pid = fork();
