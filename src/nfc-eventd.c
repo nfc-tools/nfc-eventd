@@ -312,7 +312,7 @@ ned_poll_for_tag(nfc_device* nfc_device, nfc_target* tag)
   const nfc_modulation nm[1] = { { .nmt = NMT_ISO14443A, .nbr = NBR_106 } };
 
   if( tag != NULL ) {
-	/* We are looking for a previous tag */
+    /* We are looking for a previous tag */
     /* In this case, to prevent for intensive polling we add a sleeping time */
     sleep ( polling_time );
     uiPollNr = 3; /* Polling duration : btPollNr * szTargetTypes * btPeriod * 150 = btPollNr * 300 = 900 */
@@ -323,7 +323,7 @@ ned_poll_for_tag(nfc_device* nfc_device, nfc_target* tag)
 
   nfc_target target;
   int res = nfc_initiator_poll_target (nfc_device, nm, 1, uiPollNr, uiPeriod, &target);
-  if (res >= 0) {
+  if (res > 0) {
     if ( (tag != NULL) && (0 == memcmp(tag->nti.nai.abtUid, target.nti.nai.abtUid, target.nti.nai.szUidLen)) ) {
       return tag;
     } else {
