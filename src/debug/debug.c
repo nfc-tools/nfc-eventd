@@ -37,7 +37,7 @@ void set_debug_level(int level) {
     debug_level = level;
 }
 
-int get_debug_level() {
+int get_debug_level(void) {
     return debug_level;
 }
 
@@ -77,7 +77,3 @@ void debug_print(int level, const char *file, int line, const char *format, ...)
     }
 }
 
-void _debug_print_tag(const nfc_target* tag)
-{
-  print_nfc_target(*tag, false);
-}

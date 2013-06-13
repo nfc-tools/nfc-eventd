@@ -1,4 +1,4 @@
-AC_INIT(nfc-eventd, 0.1.5, rconty@il4p.fr)
+AC_INIT(nfc-eventd, 0.1.6, romuald@libnfc.org)
 
 AC_CONFIG_HEADER(config.h)
 
@@ -71,7 +71,7 @@ AC_MSG_RESULT($enable_dbus)
 AC_PATH_PROG(PKG_CONFIG, pkg-config, [AC_MSG_ERROR([pkg-config not found.])])
 
 ## libnfc
-LIBNFC_REQUIRED_VERSION="1.5.1"
+LIBNFC_REQUIRED_VERSION="1.7.0"
 PKG_CHECK_MODULES([LIBNFC], [libnfc >= $LIBNFC_REQUIRED_VERSION], [], [AC_MSG_ERROR([libnfc >= $LIBNFC_REQUIRED_VERSION is mandatory.])])
 
 AC_SUBST(LIBNFC_LIBS)

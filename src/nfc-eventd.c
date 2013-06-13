@@ -136,7 +136,7 @@ static int execute_event ( const nfc_device *nfc_device, const nfc_target* tag, 
 /**
  * @brief Parse configuration file
  */
-static int parse_config_file() {
+static int parse_config_file(void) {
     ctx = nfcconf_new ( cfgfile );
     if ( !ctx ) {
         ERR ( "%s", "Error creating conf context" );
