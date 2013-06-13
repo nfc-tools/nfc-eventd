@@ -78,7 +78,7 @@ DEBUG_EXTERN void debug_print(int level, const char *file, int line, const char 
   void _debug_print_tag(const nfc_target* tag);
 #define debug_print_tag( X ) \
          printf("%s:%s:%d: ", "\033[34mDEBUG", __FILE__, __LINE__); \
-         _debug_print_tag( X ); \
+         print_nfc_target(tag, false); \
          printf("\033[0m\n")
 #else
   #define debug_print_tag( X )
