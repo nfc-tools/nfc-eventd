@@ -67,6 +67,25 @@ static module_init_fct module_init_fct_ptr = NULL;
 static module_event_handler_fct module_event_handler_fct_ptr = NULL;
 static nfc_connstring* connstring = NULL;
 
+nfc_device* device = NULL;
+nfc_context* context;
+
+bool quit_flag = false;
+
+static void stop_polling(int sig) 
+{ 
+  (void) sig;
+  DBG( "Stop polling... (sig:%d)", sig);
+  if (device != NULL) {
+    nfc_abort_command(device);
+    DBG( "%s", "Polling aborted.");
+    quit_flag = true;
+  } else {
+    nfc_exit(context);
+    exit(EXIT_FAILURE);
+  }
+}
+
 /**
  * @brief Load and init specified (in config file) NEM module
  */
@@ -129,8 +148,8 @@ static int load_module( void ) {
 /**
  * @brief Execute NEM function that handle events
  */
-static int execute_event ( const nfc_device *nfc_device, const nfc_target* tag, const nem_event_t event ) {
-    return (*module_event_handler_fct_ptr)( nfc_device, tag, event );
+static int execute_event ( const nfc_device *dev, const nfc_target* tag, const nem_event_t event ) {
+    return (*module_event_handler_fct_ptr)( dev, tag, event );
 }
 
 /**
@@ -264,48 +283,13 @@ static int parse_args ( int argc, char *argv[] ) {
     return 0;
 }
 
-/**
- * @brief try to find a valid tag
- * @return pointer on a valid tag or NULL.
- */
-nfc_target*
-ned_select_tag(nfc_device* nfc_device, nfc_target* tag) {
-  nfc_target* rv = malloc( sizeof(nfc_target) );
-  nfc_modulation nm = {
-    .nmt = NMT_ISO14443A,
-    .nbr = NBR_106
-  };
-
-  if ( tag == NULL ) {
-    // We are looking for any tag.
-    // Poll for a ISO14443A (MIFARE) tag
-    if ( nfc_initiator_select_passive_target ( nfc_device, nm, NULL, 0, rv ) < 0 ) {
-      free (rv);
-      rv = NULL;
-    }
-  } else {
-    // tag is not NULL, we are looking for specific tag
-    // debug_print_tag(tag);
-    if ( nfc_initiator_select_passive_target ( nfc_device, tag->nm, tag->nti.nai.abtUid, tag->nti.nai.szUidLen, rv ) < 0 ) {
-      free (rv);
-      rv = NULL;
-    }
-  }
-
-  if (rv != NULL) {
-    nfc_initiator_deselect_target ( nfc_device );
-  }
-
-  return rv;
-}
-
 typedef enum {
   NFC_POLL_HARDWARE,
   NFC_POLL_SOFTWARE,
 } nfc_poll_mode;
 
-nfc_target*
-ned_poll_for_tag(nfc_device* nfc_device, nfc_target* tag)
+static nfc_target*
+ned_poll_for_tag(nfc_device* dev, nfc_target* tag)
 {
   uint8_t uiPollNr;
   const uint8_t uiPeriod = 2; /* 2 x 150 ms = 300 ms */
@@ -322,14 +306,14 @@ ned_poll_for_tag(nfc_device* nfc_device, nfc_target* tag)
   }
 
   nfc_target target;
-  int res = nfc_initiator_poll_target (nfc_device, nm, 1, uiPollNr, uiPeriod, &target);
+  int res = nfc_initiator_poll_target (dev, nm, 1, uiPollNr, uiPeriod, &target);
   if (res > 0) {
     if ( (tag != NULL) && (0 == memcmp(tag->nti.nai.abtUid, target.nti.nai.abtUid, target.nti.nai.szUidLen)) ) {
       return tag;
     } else {
       nfc_target* rv = malloc(sizeof(nfc_target));
       memcpy(rv, &target, sizeof(nfc_target));
-      nfc_initiator_deselect_target ( nfc_device );
+      nfc_initiator_deselect_target ( dev );
       return rv;
     }
   } else {
@@ -339,7 +323,6 @@ ned_poll_for_tag(nfc_device* nfc_device, nfc_target* tag)
 
 int
 main ( int argc, char *argv[] ) {
-    nfc_context* context;
     nfc_target* old_tag = NULL;
     nfc_target* new_tag;
 
@@ -370,69 +353,67 @@ main ( int argc, char *argv[] ) {
      * so the way we proceed is to look for an tag
      * Any ideas will be welcomed
      */
-    nfc_device* nfc_device = NULL;
+    signal(SIGINT, stop_polling);
+    signal(SIGTERM, stop_polling);
 
-//connect:
     nfc_init(&context);
     if (context == NULL) {
       ERR("Unable to init libnfc (malloc)");
       exit(EXIT_FAILURE);
     }
     // Try to open the NFC device
-    if ( nfc_device == NULL ) nfc_device = nfc_open( context, NULL );
-//init:
-    if ( nfc_device == NULL ) {
+    if ( device == NULL ) device = nfc_open( context, NULL );
+    if ( device == NULL ) {
         ERR( "%s", "NFC device not found" );
         exit(EXIT_FAILURE);
     }
-    nfc_initiator_init ( nfc_device );
+    nfc_initiator_init ( device );
 
     // Drop the field for a while
-    nfc_device_set_property_bool ( nfc_device, NP_ACTIVATE_FIELD, false );
-
-    nfc_device_set_property_bool ( nfc_device, NP_INFINITE_SELECT, false );
+    nfc_device_set_property_bool ( device, NP_ACTIVATE_FIELD, false );
+    nfc_device_set_property_bool ( device, NP_INFINITE_SELECT, false );
 
     // Configure the CRC and Parity settings
-    nfc_device_set_property_bool ( nfc_device, NP_HANDLE_CRC, true );
-    nfc_device_set_property_bool ( nfc_device, NP_HANDLE_PARITY, true );
+    nfc_device_set_property_bool ( device, NP_HANDLE_CRC, true );
+    nfc_device_set_property_bool ( device, NP_HANDLE_PARITY, true );
 
     // Enable field so more power consuming cards can power themselves up
-    nfc_device_set_property_bool ( nfc_device, NP_ACTIVATE_FIELD, true );
+    nfc_device_set_property_bool ( device, NP_ACTIVATE_FIELD, true );
 
-    INFO( "Connected to NFC device: %s", nfc_device_get_name(nfc_device), nfc_device );
+    INFO( "Connected to NFC device: %s", nfc_device_get_name(device) );
 
     do {
 detect:
-        new_tag = ned_poll_for_tag(nfc_device, old_tag);
+        new_tag = ned_poll_for_tag(device, old_tag);
 
         if ( old_tag == new_tag ) { /* state unchanged */
             /* on card not present, increase and check expire time */
-            if ( expire_time == 0 ) goto detect;
-            if ( new_tag != NULL ) goto detect;
+            if (( !quit_flag ) && ( expire_time == 0 )) goto detect;
+            if (( !quit_flag ) && ( new_tag != NULL )) goto detect;
             expire_count += polling_time;
             if ( expire_count >= expire_time ) {
                 DBG ( "%s", "Timeout on tag removed " );
-                execute_event ( nfc_device, new_tag,EVENT_EXPIRE_TIME );
+                execute_event ( device, new_tag,EVENT_EXPIRE_TIME );
                 expire_count = 0; /*restart timer */
             }
         } else { /* state changed; parse event */
             expire_count = 0;
             if ( new_tag == NULL ) {
                 DBG ( "%s", "Event detected: tag removed" );
-                execute_event ( nfc_device, old_tag, EVENT_TAG_REMOVED );
+                execute_event ( device, old_tag, EVENT_TAG_REMOVED );
                 free(old_tag);
             } else {
                 DBG ( "%s", "Event detected: tag inserted " );
-                execute_event ( nfc_device, new_tag, EVENT_TAG_INSERTED );
+                execute_event ( device, new_tag, EVENT_TAG_INSERTED );
             }
             old_tag = new_tag;
         }
-    } while ( 1 );
-//disconnect:
-    if ( nfc_device != NULL ) {
-        nfc_close(nfc_device);
-        DBG ( "NFC device (0x%08x) is disconnected", nfc_device );
-        nfc_device = NULL;
+    } while ( !quit_flag );
+
+    if ( device != NULL ) {
+        nfc_close(device);
+        DBG ( "NFC device (0x%08x) is disconnected", device );
+        device = NULL;
     }
 
     /* If we get here means that an error or exit status occurred */

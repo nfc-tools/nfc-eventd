@@ -1,4 +1,4 @@
-AC_INIT(nfc-eventd, 0.1.6, romuald@libnfc.org)
+AC_INIT(nfc-eventd, 0.1.7, romuald@libnfc.org)
 
 AC_CONFIG_HEADER(config.h)
 

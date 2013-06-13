@@ -32,13 +32,6 @@
 
 #define INFO(x,...) debug_print(0, __FILE__, __LINE__, x, ## __VA_ARGS__ )
 
-#ifndef DEBUG
-//  #warning "Debugging is completely disabled!"
-  #define DBG(...) {}
-#else
-  #define DBG(x,...) debug_print(1, __FILE__, __LINE__, x, ## __VA_ARGS__ )
-#endif /* DEBUG */
-
 #ifndef __DEBUG_C_
   #define DEBUG_EXTERN extern
 #else 
